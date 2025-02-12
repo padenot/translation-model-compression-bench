@@ -19,6 +19,8 @@ for file in "${FILES[@]}"; do
         COMMANDS+=("brotli -f -d -k $OUTPUT_DIR/${file}.$level.br > /dev/null")
     done
 
+    COMMANDS+=("snzip -d -k $OUTPUT_DIR/${file}.0.snz > /dev/null")
+
     for level in "${ZSTD_LEVELS[@]}"; do
         COMMANDS+=("zstd -d -c $OUTPUT_DIR/${file}.zst.$level > /dev/null")
     done
