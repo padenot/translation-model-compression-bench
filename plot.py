@@ -17,10 +17,15 @@ for file in os.listdir(compressed_dir):
         if model == "jaen":
             key += ".jaen"
         file_sizes[key] = os.path.getsize(os.path.join(compressed_dir, file))
-    # brotli has different extension
-    match = re.search(r'model\.(.*?)\.intgemm\.alphas\.bin\.(\d+)\.([a-z0-9]+)', file)
-    if match:
-        model, level, compression = match.groups()
+    # brotli and zl have different extension
+    matches = {
+        "br": re.search(r"model\.(.*?)\.intgemm\.alphas\.bin\.(\d+)\.br", file),
+        "zl": re.search(r"model\.(.*?)\.intgemm\.alphas\.bin\.zl\.([a-z0-9]+)", file),
+    }
+    for compression, match in matches.items():
+        if not match:
+            continue
+        model, level = match.groups()
         print(model, level, compression)
         key = f"{compression}.{level}"
         if model == "jaen":
@@ -49,23 +54,15 @@ for entry in data['results']:
             commands.append(entry['command'].split()[0])
             levels.append(match.group(2))
             labels.append(f"{entry['command'].split()[0]}-{match.group(2)}")
-    # brotli has different extension
-    match = re.search(r'\.([0-9]+)\.br', entry['command'])
-    if match:
-        key = f"br.{match.group(1)}"
-        if "jaen" in entry['command']:
-            key += ".jaen"
-        size = file_sizes.get(key, None)
-        if size:
-            sizes.append(size)
-            times.append(entry['mean'])
-            commands.append(entry['command'].split()[0])
-            levels.append(match.group(1))
-            labels.append(f"{entry['command'].split()[0]}-{match.group(1)}")
-    # snz has different extension
-    match = re.search(r'\.([0-9]+)\.snz', entry['command'])
-    if match:
-        key = f"snz.{match.group(1)}"
+    # brotli and zl have different extension
+    matches = {
+        "br": re.search(r'\.([0-9]+)\.br', entry['command']),
+        "zl": re.search(r'\.zl\.([a-z0-9]+)', entry['command']),
+    }
+    for compression, match in matches.items():
+        if not match:
+            continue
+        key = f"{compression}.{match.group(1)}"
         if "jaen" in entry['command']:
             key += ".jaen"
         size = file_sizes.get(key, None)

@@ -11,7 +11,7 @@ source .venv/bin/activate
 uv pip install matplotlib
 ./compress.sh
 ./decompress.sh
-./plot.py
+uv run plot.py
 ```
 
 ![Results: zstd seem to be the best choice](results.png "results.png")
